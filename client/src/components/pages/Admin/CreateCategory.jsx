@@ -4,12 +4,12 @@ import AdminMenu from "../../Layout/AdminMenu";
 import toast from "react-hot-toast";
 import axios from "axios";
 import CategoryForm from "../../Form/CategoryForm";
-import {Modal} from "antd";
+import { Modal } from "antd";
 
 const CreateCategory = () => {
   const [categories, setCategories] = useState([]);
   const [name, setName] = useState("");
-  const [visible, setVisible] = useState(false);
+  const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState(null);
   const [updatedName, setUpdatedName] = useState("");
 
@@ -37,8 +37,8 @@ const CreateCategory = () => {
       const { data } = await axios.get(
         "http://localhost:8080/api/v1/category/get-category"
       );
-      if (data.success) {
-        setCategories(data.category);
+      if (data?.success) {
+        setCategories(data?.category);
       }
     } catch (error) {
       console.log(error);
@@ -50,39 +50,44 @@ const CreateCategory = () => {
     getAllCategory();
   }, []);
 
-  const handleUpdate = async(e) => {
-    e.preventDefault()
+  const handleUpdate = async (e) => {
+    e.preventDefault();
     try {
-      const {data} = await axios.put(`http://localhost:8080/api/v1/category/update-category/${selected._id}`, {name:updatedName})
-    if(data.success){
-      toast.success(`${updatedName} is updated` )
-      setSelected(null)
-      setUpdatedName("")
-      setVisible(false)
-      getAllCategory();
-    } else {
-      toast.error(data.message);
-    }
+      const { data } = await axios.put(
+        `http://localhost:8080/api/v1/category/update-category/${selected._id}`,
+        { name: updatedName }
+      );
+      if (data.success) {
+        toast.success(`${updatedName} is updated`);
+        setSelected(null);
+        setUpdatedName("");
+        setVisible(false);
+        getAllCategory();
+      } else {
+        toast.error(data.message);
+      }
     } catch (error) {
       console.log(error);
       toast.error("Error in handleUpdate");
     }
-  }
+  };
 
-  const handleDelete = async(pid) => {
+  const handleDelete = async (pid) => {
     try {
-      const {data} = await axios.delete(`http://localhost:8080/api/v1/category/delete-category/${pid}`)
-    if(data.success){
-      toast.success(`Category is deleted` )
-      getAllCategory();
-    } else {
-      toast.error(data.message);
-    }
+      const { data } = await axios.delete(
+        `http://localhost:8080/api/v1/category/delete-category/${pid}`
+      );
+      if (data.success) {
+        toast.success(`Category is deleted`);
+        getAllCategory();
+      } else {
+        toast.error(data.message);
+      }
     } catch (error) {
       console.log(error);
       toast.error("Error in handleUpdate");
     }
-  }
+  };
 
   return (
     <Layout title={"DashBoard - Create Category"}>
@@ -116,11 +121,22 @@ const CreateCategory = () => {
                         <td>
                           <button
                             className="btn btn-primary"
-                            onClick={() => {setVisible(true) ; setUpdatedName(item.name) ; setSelected(item)}}
+                            onClick={() => {
+                              setVisible(true);
+                              setUpdatedName(item.name);
+                              setSelected(item);
+                            }}
                           >
                             Edit
                           </button>
-                          <button className="btn btn-danger" onClick={()=> {handleDelete(item._id)}}>Delete</button>
+                          <button
+                            className="btn btn-danger"
+                            onClick={() => {
+                              handleDelete(item._id);
+                            }}
+                          >
+                            Delete
+                          </button>
                         </td>
                       </tr>
                     </>
@@ -129,11 +145,15 @@ const CreateCategory = () => {
               </table>
             </div>
             <Modal
-              onCancel={() => setVisible(false)}
+              onCancel={() => setOpen(false)}
               footer={null}
-              visible={visible}
+              open={open}
             >
-              <CategoryForm value={updatedName} setValue={setUpdatedName} handleSubmit={handleUpdate}/>
+              <CategoryForm
+                value={updatedName}
+                setValue={setUpdatedName}
+                handleSubmit={handleUpdate}
+              />
             </Modal>
           </div>
         </div>

@@ -18,6 +18,8 @@ import CreateProduct from "./components/pages/Admin/CreateProduct";
 import Users from "./components/pages/Admin/Users";
 import Order from "./components/pages/user/Order";
 import Profile from "./components/pages/user/Profile";
+import Products from "./components/pages/Admin/Products";
+import UpdateProduct from "./components/pages/Admin/UpdateProduct";
 
 function App() {
   return (
@@ -33,6 +35,8 @@ function App() {
           <Route path="admin" element={<AdminDashBoard />} />
           <Route path="admin/create-category" element={<CreateCategory />} />
           <Route path="admin/create-product" element={<CreateProduct />} />
+          <Route path="admin/product/:slug" element={<UpdateProduct />} />
+          <Route path="admin/products" element={<Products />} />
           <Route path="admin/users" element={<Users />} />
         </Route>
         <Route path="/forgot-password" element={<ForgotPassword />} />
