@@ -3,9 +3,10 @@ import { isAdmin, requireSignIn } from "../middleware/authMiddleware.js";
 import {
   createProductController,
   updateProductController,
-  productController,
+  getProductController,
   singleProductController,
   deleteProductController,
+  productPhotoController
 } from "../controller/productController.js";
 import ExpressFormidable from "express-formidable";
 
@@ -13,18 +14,28 @@ const router = express.Router();
 
 router.post(
   "/create-product",
-  isAdmin,
   requireSignIn,
+  isAdmin,
   ExpressFormidable(),
   createProductController
 );
 
-router.put("/update-product", updateProductController);
+router.put(
+    "/update-product/:pid",
+    requireSignIn,
+    isAdmin,
+    ExpressFormidable(),
+    updateProductController
+  );
 
-router.get("/all-product", productController);
+router.get("/get-product", getProductController);
 
-router.get("/single-product", singleProductController);
+router.get("/get-product/:slug", singleProductController);
 
-router.delete("/delete-product", deleteProductController);
+router.get("/product-photo/:pid", productPhotoController);
+
+router.delete("/product/:pid", deleteProductController);
+
+
 
 export default router;
