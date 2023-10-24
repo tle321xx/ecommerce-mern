@@ -6,7 +6,12 @@ import {
   getProductController,
   singleProductController,
   deleteProductController,
-  productPhotoController
+  productPhotoController,
+  productFilterController,
+  productCountController,
+  productListController,
+  searchController,
+  relatedProductController
 } from "../controller/productController.js";
 import ExpressFormidable from "express-formidable";
 
@@ -36,6 +41,14 @@ router.get("/product-photo/:pid", productPhotoController);
 
 router.delete("/delete-product/:pid", deleteProductController);
 
+router.post('/product-filters', productFilterController)
 
+router.get("/product-count", productCountController);
+
+router.get("/product-list/:page", productListController);
+
+router.get("/search/:keyword", searchController);
+
+router.get("/related-product/:pid/:cid", relatedProductController);
 
 export default router;
