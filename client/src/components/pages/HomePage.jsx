@@ -6,9 +6,11 @@ import { Button, Checkbox, Radio } from "antd";
 import { Prices } from "../Prices";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { useCart } from "../../context/Cart";
 
 const HomePage = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const [cart, setCart] = useCart();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [checked, setChecked] = useState([]);
@@ -16,8 +18,6 @@ const HomePage = () => {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
-
-  
 
   const getAllCategory = async () => {
     try {
@@ -39,14 +39,14 @@ const HomePage = () => {
 
   const getAllProducts = async () => {
     try {
-      setLoading(true)
+      setLoading(true);
       const { data } = await axios.get(
         `http://localhost:8080/api/v1/product/product-list/${page}`
       );
-      setLoading(false)
+      setLoading(false);
       setProducts(data.products);
     } catch (error) {
-      setLoading(true)
+      setLoading(true);
       console.log(error);
       toast.error("error in home page");
     }
@@ -63,29 +63,29 @@ const HomePage = () => {
     }
   };
 
-  useEffect(()=>{
-    if(page === 1) return;
-    loadMore()
-  },[page])
+  useEffect(() => {
+    if (page === 1) return;
+    loadMore();
+  }, [page]);
 
-  const loadMore = async() => {
+  const loadMore = async () => {
     try {
-      setLoading(true)
+      setLoading(true);
       const { data } = await axios.get(
         `http://localhost:8080/api/v1/product/product-list/${page}`
       );
-      setLoading(false)
-      setProducts([...products, ...data?.products])
+      setLoading(false);
+      setProducts([...products, ...data?.products]);
     } catch (error) {
-      setLoading(false)
+      setLoading(false);
       console.log(error);
     }
-  }
+  };
 
-  useEffect(()=>{
+  useEffect(() => {
     getAllCategory();
-    getTotal()
-  },[])
+    getTotal();
+  }, []);
 
   const handleFilter = (value, id) => {
     let all = [...checked];
@@ -170,24 +170,38 @@ const HomePage = () => {
                   {/* substring นี่คือ function ที่เราตามหาว่าจะทำยังไงให้การ์ดที่มี description เยอะๆมันเท่ากัน */}
                   <p className="card-text">{p.description.substring(0, 30)}</p>
                   <p className="card-text">$ {p.price}</p>
-                  <button href="#" class="btn btn-primary ms-1" onClick={()=>navigate(`/product/${p.slug}`)}>
+                  <button
+                    href="#"
+                    class="btn btn-primary ms-1"
+                    onClick={() => navigate(`/product/${p.slug}`)}
+                  >
                     More Details
                   </button>
-                  <button href="#" class="btn btn-secondary ms-1">
-                    Add to cart
+                  <button
+                    className="btn btn-secondary ms-1"
+                    onClick={() => {
+                      setCart([...cart, p]);
+                      localStorage.setItem(
+                        "cart",
+                        JSON.stringify([...cart, p])
+                      );
+                      toast.success("Item Added to cart");
+                    }}
+                  >
+                    ADD TO CART
                   </button>
                 </div>
               </div>
             ))}
           </div>
           <div className="m-2 p-3">
-            {products && products.length < total &&(
+            {products && products.length < total && (
               <button
-              className="btn btn-warning"
-              onClick={(e)=>{
-                e.preventDefault()
-                setPage(page + 1)
-              }}
+                className="btn btn-warning"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setPage(page + 1);
+                }}
               >
                 {loading ? "Loading..." : "Loadmore"}
               </button>
