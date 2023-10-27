@@ -2,6 +2,7 @@ import productModel from "../models/productModel.js";
 import fs from "fs";
 import { send } from "process";
 import slugify from "slugify";
+import categoryModels from "../models/categoryModels.js"
 
 export const createProductController = async (req, res) => {
   // console.log("req.fields ", req.fields)
@@ -287,6 +288,25 @@ export const relatedProductController = async (req, res) => {
       success: false,
       message: "error while geting related product",
       error,
+    });
+  }
+};
+
+export const productCategoryController = async (req, res) => {
+  try {
+    const category = await categoryModels.findOne({ slug: req.params.slug });
+    const products = await productModel.find({ category }).populate("category");
+    res.status(200).send({
+      success: true,
+      category,
+      products,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(400).send({
+      success: false,
+      error,
+      message: "Error While Getting products",
     });
   }
 };
