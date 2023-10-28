@@ -12,7 +12,9 @@ import {
   productListController,
   searchController,
   relatedProductController,
-  productCategoryController
+  productCategoryController,
+  braintreeTokenController,
+  braintreePaymentController,
 } from "../controller/productController.js";
 import ExpressFormidable from "express-formidable";
 
@@ -27,12 +29,12 @@ router.post(
 );
 
 router.put(
-    "/update-product/:pid",
-    requireSignIn,
-    isAdmin,
-    ExpressFormidable(),
-    updateProductController
-  );
+  "/update-product/:pid",
+  requireSignIn,
+  isAdmin,
+  ExpressFormidable(),
+  updateProductController
+);
 
 router.get("/get-product", getProductController);
 
@@ -42,7 +44,7 @@ router.get("/product-photo/:pid", productPhotoController);
 
 router.delete("/delete-product/:pid", deleteProductController);
 
-router.post('/product-filters', productFilterController)
+router.post("/product-filters", productFilterController);
 
 router.get("/product-count", productCountController);
 
@@ -53,5 +55,12 @@ router.get("/search/:keyword", searchController);
 router.get("/related-product/:pid/:cid", relatedProductController);
 
 router.get("/product-category/:slug", productCategoryController);
+
+// payment gateway
+// token
+router.get("/braintree/token", braintreeTokenController);
+
+// payment
+router.post("/braintree/payment", requireSignIn, braintreePaymentController);
 
 export default router;

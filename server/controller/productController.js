@@ -1,8 +1,22 @@
 import productModel from "../models/productModel.js";
 import fs from "fs";
-import { send } from "process";
 import slugify from "slugify";
 import categoryModels from "../models/categoryModels.js"
+import braintree from "braintree";
+import orderModel from "../models/orderModel.js";
+
+// import dotenv for fix Error: Missing privateKey
+import dotenv from 'dotenv'
+dotenv.config()
+
+// payment gateway
+var gateway = new braintree.BraintreeGateway({
+  environment: braintree.Environment.Sandbox,
+  merchantId: process.env.BRAINTREE_MERCHANT_ID,
+  publicKey: process.env.BRAINTREE_PUBLIC_KEY,
+  privateKey: process.env.BRAINTREE_PRIVATE_KEY,
+});
+
 
 export const createProductController = async (req, res) => {
   // console.log("req.fields ", req.fields)
@@ -310,3 +324,63 @@ export const productCategoryController = async (req, res) => {
     });
   }
 };
+
+// payment gateway
+export const braintreeTokenController = async (req, res) =>{
+  try {
+    gateway.clientToken.generate({}, function (err, response){
+      if(err){
+        console.log(err);
+        res.status(500).send(err)
+      } else {
+        res.send(response)
+      }
+    })
+  } catch (error) {
+    console.log(error);
+    res.status(400).send({
+      success: false,
+      error,
+      message: "Error in braintree Token Controller",
+    });
+  }
+}
+
+export const braintreePaymentController = async (req, res) =>{
+  try {
+   const {cart, nonce} = req.body
+   let total = 0;
+    cart.map((i) => {
+      total += i.price;
+    });
+    let result = await gateway.transaction.sale(
+      {
+        amount: total,
+        paymentMethodNonce: nonce,
+        options: {
+          submitForSettlement: true,
+        },
+      },
+      function (error, result) {
+        if (result) {
+          const order = new orderModel({
+            products: cart,
+            payment: result,
+            buyer: req.user._id,
+          })
+          order.save();
+          res.json({ ok: true });
+        } else {
+          res.status(500).send(error);
+        }
+      }
+    );
+  } catch (error) {
+    console.log(error);
+    res.status(400).send({
+      success: false,
+      error,
+      message: "Error in braintree Payment Controller",
+    });
+  }
+}
