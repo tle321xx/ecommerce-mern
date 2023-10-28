@@ -9,20 +9,20 @@ const CartPage = () => {
   const [cart, setCart] = useCart();
   const navigate = useNavigate();
 
-  const totalPrice = () =>{
+  const totalPrice = () => {
     try {
-        let total = 0;
+      let total = 0;
       cart?.map((item) => {
         total = total + Number(item.price);
       });
-        return total.toLocaleString("en-US", {
-            style:"currency",
-            currency: "USD"
-        })
+      return total.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      });
     } catch (error) {
-        console.log(error)
+      console.log(error);
     }
-  }
+  };
 
   const removeCartItem = async (pid) => {
     try {
@@ -30,7 +30,7 @@ const CartPage = () => {
       let index = myCart.findIndex((item) => item._id === pid);
       myCart.splice(index, 1);
       setCart(myCart);
-      localStorage.setItem('cart',JSON.stringify(myCart))
+      localStorage.setItem("cart", JSON.stringify(myCart));
     } catch (error) {
       console.log(error);
     }
@@ -44,7 +44,7 @@ const CartPage = () => {
               {`Hello ${auth?.token && auth?.user?.name}`}
             </h1>
             <h4 className="text-center">
-              {cart?.length 
+              {cart?.length
                 ? `You have ${cart.length} items in your cart ${
                     auth?.token ? "" : "please login to checkout"
                   }`
@@ -78,10 +78,44 @@ const CartPage = () => {
             ))}
           </div>
           <div className="col-md-4 text-center">
-          <h2>Cart Summary</h2>
+            <h2>Cart Summary</h2>
             <p>Total | Checkout | Payment</p>
             <hr />
             <h4>Total : {totalPrice()} </h4>
+            {auth?.user?.address ? (
+              <>
+                <div className="mb-">
+                  <h4>Current Address</h4>
+                  <h5>{auth?.user?.address}</h5>
+                  <button
+                    className="btn btn-outline-warning"
+                    onClick={() => navigate("/dashboard/user/profile")}
+                  >
+                    Update Address
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className="mb-3">
+                {auth?.token ? (
+                  <button
+                    className="btn btn-outline-warning"
+                    onClick={() => navigate("/dashboard/user/profile")}
+                  >
+                    Update Address
+                  </button>
+                ) : (
+                  <button
+                    className="btn btn-outline-warning"
+                    onClick={() => navigate("/login", {
+                        state: "/cart"
+                    })}
+                  >
+                    Please login to Checkout
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>

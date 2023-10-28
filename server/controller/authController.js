@@ -22,12 +22,12 @@ export const registerController = async (req, res) => {
       return res.send({ message: "Address is required" });
     }
     if (!answer) {
-        return res.send({ message: "Address is required" });
-      }
+      return res.send({ message: "Address is required" });
+    }
 
     const existingUser = await userModel.findOne({ email });
     if (existingUser) {
-      return res.statrus(200).send({
+      return res.status(200).send({
         success: false,
         message: "Error in Register",
         error: "User already exists",
@@ -43,7 +43,7 @@ export const registerController = async (req, res) => {
       phone,
       address,
       password: hashedPassword,
-      answer
+      answer,
     }).save();
     res.status(201).send({
       success: true,
@@ -98,7 +98,7 @@ export const loginController = async (req, res) => {
         email: user.email,
         phone: user.phone,
         address: user.address,
-        role: user.role
+        role: user.role,
       },
       token,
     });
@@ -121,7 +121,7 @@ export const forgotPasswordController = async (req, res) => {
     if (!answer) {
       res.status(400).send({ message: "answer is required" });
     }
-    if (!newPassword ) {
+    if (!newPassword) {
       res.status(400).send({ message: "newpassword is required" });
     }
     // check
@@ -133,7 +133,7 @@ export const forgotPasswordController = async (req, res) => {
         message: "Wrong email or answer",
       });
     }
-    const hashed = await hashPassword(newPassword );
+    const hashed = await hashPassword(newPassword);
     await userModel.findByIdAndUpdate(user._id, { password: hashed });
     res.status(200).send({
       success: true,
@@ -151,4 +151,39 @@ export const forgotPasswordController = async (req, res) => {
 
 export const testController = (req, res) => {
   res.send("Protected");
+};
+
+export const updateProfileController = async (req, res) => {
+  try {
+    const { name, email, password, address, phone } = req.body;
+    const user = await userModel.findById(req.user._id);
+    if (password && password.length < 6) {
+      return res.json({
+        error: "Password is required and at least 6 charactors",
+      });
+    }
+    const hashedPassword = password ? await hashPassword(password) : undefined;
+    const updateUser = await userModel.findByIdAndUpdate(
+      req.user._id,
+      {
+        name: name || user.name,
+        password: hashedPassword || user.password,
+        address: address || user.address,
+        phone: phone || user.phone,
+      },
+      { new: true }
+    );
+    res.status(200).send({
+      success: true,
+      message: "Update Profile Successfully",
+      updateUser,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: "Issue in updateProfileController",
+      error,
+    });
+  }
 };

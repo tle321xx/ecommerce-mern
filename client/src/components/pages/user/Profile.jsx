@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import UserMenu from "../../Layout/UserMenu";
 import Layout from "../../Layout/Layout";
-import { useAuth } from "../../../context/Auth"; 
+import { useAuth } from "../../../context/Auth";
 import toast from "react-hot-toast";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 const Profile = () => {
   const [auth, setAuth] = useAuth();
-  
+  const navigate = useNavigate();
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -15,25 +17,28 @@ const Profile = () => {
 
   //get user data
   useEffect(() => {
-    const { email, name, phone, address } = auth?.user;
-    setName(name);
-    setPhone(phone);
-    setEmail(email);
-    setAddress(address);
+    const { email, name, phone, address } = auth?.user || {};
+    setName(name || "");
+    setPhone(phone || "");
+    setEmail(email || "");
+    setAddress(address || "");
   }, [auth?.user]);
 
   // form function
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await axios.put("http://localhost:8080/api/v1/auth/profile", {
-        name,
-        email,
-        password,
-        phone,
-        address,
-      });
-      if (data?.errro) {
+      const { data } = await axios.put(
+        "http://localhost:8080/api/v1/auth/profile",
+        {
+          name,
+          email,
+          password,
+          phone,
+          address,
+        }
+      );
+      if (data?.error) {
         toast.error(data?.error);
       } else {
         setAuth({ ...auth, user: data?.updatedUser });
